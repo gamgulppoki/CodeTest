@@ -1,0 +1,80 @@
+#include <string>
+#include <vector>
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+struct node
+{
+    vector<int> pre;
+    vector<int> next;
+    int idx;
+};
+
+node nodelist[104];
+int visited[104];
+
+int getWin(int idx)
+{
+    visited[idx] = 1;
+    
+    int tmp = 1;
+    for(auto& p : nodelist[idx].pre)
+    {
+        if (visited[p] == -1)
+        {
+            tmp += getWin(p);
+        }
+    }
+    
+    return tmp;
+}
+
+int getLose(int idx)
+{
+    visited[idx] = 1;
+    
+    int tmp = 1;
+    for(auto& n : nodelist[idx].next)
+    {
+        if (visited[n] == -1)
+        {
+            tmp += getLose(n);
+        }
+    }
+    
+    return tmp;
+}
+
+int solution(int n, vector<vector<int>> results) {
+    int answer = 0;
+    
+    for(int i=1;i<=n;i++)
+    {
+        nodelist[i].idx = i;
+    }
+    
+    for(auto& r : results)
+    {
+        int win = r[0]; int lose = r[1];
+        
+        nodelist[win].next.push_back(lose);
+        nodelist[lose].pre.push_back(win);
+    }
+    
+    for(int i=1;i<=n;i++)
+    {
+        memset(visited, -1, sizeof(visited));
+        int wins = getWin(i) - 1;
+        memset(visited, -1, sizeof(visited));
+        int loses = getLose(i) - 1;
+        //cout << wins << " " << loses << endl;
+        if ((wins + loses) == n - 1)
+        {
+            answer++;
+        }
+    }
+    
+    return answer;
+}
